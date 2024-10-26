@@ -1,33 +1,50 @@
+use std::ops::RangeInclusive;
+
 use clap::Parser;
 
-/// Simple program to greet a person
+/// Timezone compiler in Rust
 #[derive(Parser, Debug)]
 #[command(version, about, long_about = None)]
 struct Args {
-    /// Name of the person to greet
-    #[arg(short, long)]
+    /// Set compiler output flag for backword compatability data
+    #[arg(short)]
     bloat: Option<String>,
     
-    #[arg(short, long)]
+    /// Create a directory to create the files in
+    #[arg(short)]
     directory: Option<String>,
 
-    #[arg(short='l', long)]
-    timezone: Option<String>,
+    /// Use timezone as localtime
+    #[arg(short='l', default_value_t=false)]
+    localtime: bool,
 
-    #[arg(short='L', long)]
-    leapsecondfilename: Option<String>,
+    /// Read the leapsecond information
+    #[arg(short='L', default_value_t=false)]
+    leapseconds: bool,
 
+// check whether supported!
+    /// Use timezones posix rules
+    #[arg(short='p', default_value_t=false)]
+    posixrules: bool,
+
+    /// Timestamp range for output files
+    #[arg(short='r')]
+    range: Option<String>,
+
+    /// Filename alias for a link
+    #[arg(short='t')]
+    localtimelink: Option<String>,
+
+    /// Set verbosity of compiler
+    #[arg(short, default_value_t=false)]
+    verbose: bool,
+
+    filenames: Vec<String>,
     
-
-    /// Number of times to greet
-    #[arg(short, long, default_value_t = 1)]
-    count: u8,
 }
 
 fn main() {
     let args = Args::parse();
 
-    for _ in 0..args.count {
-        println!("Hello {}!", args.bloat);
-    }
+    assert!(true);
 }
