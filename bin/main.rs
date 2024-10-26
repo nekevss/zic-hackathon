@@ -1,6 +1,10 @@
-use std::ops::RangeInclusive;
+use std::{path::PathBuf, str::FromStr};
 
 use clap::Parser;
+
+use zic_rs::{config::Config, options::BloatOption, ZoneInfoCompiler};
+
+const ZONEINFO_DIR: &str = "/usr/share/zoneinfo";
 
 /// Timezone compiler in Rust
 #[derive(Parser, Debug)]
@@ -12,7 +16,7 @@ struct Args {
     
     /// Create a directory to create the files in
     #[arg(short)]
-    directory: Option<String>,
+    directory: Option<PathBuf>,
 
     /// Use timezone as localtime
     #[arg(short='l', default_value_t=false)]
@@ -22,7 +26,7 @@ struct Args {
     #[arg(short='L', default_value_t=false)]
     leapseconds: bool,
 
-// check whether supported!
+    // check whether supported!
     /// Use timezones posix rules
     #[arg(short='p', default_value_t=false)]
     posixrules: bool,
@@ -42,31 +46,16 @@ struct Args {
     filenames: Vec<String>,
 }
 
-#[derive(clap::ValueEnum, Clone, Debug, Copy, PartialEq, Eq)]
-pub enum BloatOption {
-    Slim, 
-    Fat,
-}
-
-pub struct BloatOptionErr;
-
-impl core::str::FromStr for BloatOption {
-    type Err = BloatOptionErr;
-    fn from_str(s: &str) -> Result<Self, Self::Err> {
-        match s {
-            "fat" => Ok(Self::Fat),
-            "slim"=> Ok(Self::Slim),
-            _=> Err(BloatOptionErr),
-        }
-    }
-}
-
-impl core::fmt::Display for BloatOption {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
-        match self {
-            BloatOption::Slim=> f.write_str("slim"),
-            BloatOption::Fat=> f.write_str("fat")
-        }
+impl From<Args> for Config {
+    fn from(value: Args) -> Self {
+        let directory = value.directory.unwrap_or(PathBuf::from_str(ZONEINFO_DIR).expect("const is path."));
+        Config::new()
+            .set_bloat(value.bloat)
+            .set_verbose(value.verbose)
+            .set_leap_seconds_flag(value.leapseconds)
+            .set_localtime_flag(value.localtime)
+            .set_posixrules_flag(value.posixrules)
+            .directory(directory)
     }
 }
 
@@ -74,9 +63,12 @@ impl core::fmt::Display for BloatOption {
 fn main() {
     let args = Args::parse();
 
-    assert!(true);
+    let filenames = args.filenames.clone();
+    let compiler = ZoneInfoCompiler::new(args.into());
 
-    assert_eq!(args.bloat, BloatOption::Slim);
-    assert_eq!(&args.bloat.to_string(), "slim");
-
+    println!("Compiler with config:");
+    println!("{compiler:#?}");
+    println!("============");
+    println!("TODO: Compiler the below.\n{:#?}", filenames);
+    println!("============");
 }

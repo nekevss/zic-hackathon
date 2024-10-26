@@ -1,7 +1,13 @@
 [package]
-name = "zic"
+name = "zic_rs"
 version = "0.1.0"
 edition = "2021"
 
 [dependencies]
+bitflags = "2.6.0"
 clap = { version = "4.5.20", features = ["derive"] }
+
+[[bin]]
+name = "zic"
+doc = false
+path = "bin/main.rs"
