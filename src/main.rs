@@ -7,8 +7,8 @@ use clap::Parser;
 #[command(version, about, long_about = None)]
 struct Args {
     /// Set compiler output flag for backword compatability data
-    #[arg(short)]
-    bloat: Option<String>,
+    #[arg(short, default_value_t=BloatOption::Slim)]
+    bloat: BloatOption,
     
     /// Create a directory to create the files in
     #[arg(short)]
@@ -40,11 +40,43 @@ struct Args {
     verbose: bool,
 
     filenames: Vec<String>,
-    
 }
+
+#[derive(clap::ValueEnum, Clone, Debug, Copy, PartialEq, Eq)]
+pub enum BloatOption {
+    Slim, 
+    Fat,
+}
+
+pub struct BloatOptionErr;
+
+impl core::str::FromStr for BloatOption {
+    type Err = BloatOptionErr;
+    fn from_str(s: &str) -> Result<Self, Self::Err> {
+        match s {
+            "fat" => Ok(Self::Fat),
+            "slim"=> Ok(Self::Slim),
+            _=> Err(BloatOptionErr),
+        }
+    }
+}
+
+impl core::fmt::Display for BloatOption {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        match self {
+            BloatOption::Slim=> f.write_str("slim"),
+            BloatOption::Fat=> f.write_str("fat")
+        }
+    }
+}
+
 
 fn main() {
     let args = Args::parse();
 
     assert!(true);
+
+    assert_eq!(args.bloat, BloatOption::Slim);
+    assert_eq!(&args.bloat.to_string(), "slim");
+
 }
